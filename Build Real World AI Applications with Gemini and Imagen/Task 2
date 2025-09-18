@@ -1,0 +1,78 @@
+import vertexai
+from vertexai.generative_models import GenerativeModel, Part, Image, Content
+
+
+def analyze_bouquet_image(project_id: str, location: str, image_path: str = "/home/student/image.jpeg"):
+    """
+    Analyze a bouquet image using Gemini 2.0 multimodal model on Vertex AI.
+    Then start an interactive chat session with history context.
+    """
+
+    # 1. Initialize Vertex AI
+    vertexai.init(project=project_id, location=location)
+
+    # 2. Load Gemini multimodal model
+    model = GenerativeModel("gemini-2.0-flash-001")
+
+    try:
+        # 3. Load image from file
+        image_part = Part.from_image(Image.load_from_file(image_path))
+    except Exception as e:
+        print(f"❌ Failed to load image: {e}")
+        return
+
+    # 4. Initial image analysis (streaming)
+    print("📷 Image Analysis: ", end="", flush=True)
+    full_response = ""
+    try:
+        response_stream = model.generate_content(
+            [image_part, Part.from_text("What is shown in this image?")],
+            stream=True
+        )
+
+        for chunk in response_stream:
+            if chunk.text:
+                print(chunk.text, end="", flush=True)
+                full_response += chunk.text
+
+        print("\n")
+
+    except Exception as e:
+        print(f"\n❌ Error during image analysis: {e}")
+        return
+
+    # 5. Create chat history to maintain context
+    chat_history = [
+        Content(role="user", parts=[image_part, Part.from_text("What is shown in this image?")]),
+        Content(role="model", parts=[Part.from_text(full_response)])
+    ]
+    chat = model.start_chat(history=chat_history)
+
+    # 6. Start interactive chat loop
+    print("\n🎤 Chat with Gemini (type 'exit' to quit):")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower().strip() == "exit":
+            print("👋 Bye!")
+            break
+
+        try:
+            response_stream = chat.send_message(user_input, stream=True)
+            print("Gemini: ", end="", flush=True)
+
+            for chunk in response_stream:
+                if chunk.text:
+                    print(chunk.text, end="", flush=True)
+            print()
+
+        except Exception as e:
+            print(f"❌ Error: {e}")
+            break
+
+
+if __name__ == "__main__":
+    # Replace with your actual project ID and region
+    PROJECT_ID = "<PROJECT-ID>"
+    REGION = "<REGION>"
+
+    analyze_bouquet_image(PROJECT_ID, REGION)

@@ -1,0 +1,50 @@
+import argparse
+
+import vertexai
+from vertexai.preview.vision_models import ImageGenerationModel
+
+
+def generate_image(
+    project_id: str, location: str, output_file: str, prompt: str
+) -> vertexai.preview.vision_models.ImageGenerationResponse:
+    """
+    Generate an image using a text prompt with Vertex AI.
+
+    Args:
+        project_id (str): Google Cloud project ID for initializing Vertex AI.
+        location (str): Google Cloud region for initializing Vertex AI.
+        output_file (str): Local path to save the generated image.
+        prompt (str): The text description of the desired image.
+
+    Returns:
+        vertexai.preview.vision_models.ImageGenerationResponse:
+        The response containing the generated image(s).
+    """
+
+    # Initialize Vertex AI
+    vertexai.init(project=project_id, location=location)
+
+    # Load the pretrained model
+    model = ImageGenerationModel.from_pretrained("imagen-3.0-generate-002")
+
+    # Generate image(s)
+    images = model.generate_images(
+        prompt=prompt,
+        number_of_images=1,   # Generate a single image
+        seed=1,               # Optional: deterministic output with same seed
+        add_watermark=False,  # Remove watermark
+    )
+
+    # Save the first image locally
+    images[0].save(location=output_file)
+
+    return images
+
+
+# Example usage
+generate_image(
+    project_id="<PROJECT_ID>",
+    location="<REGION>",
+    output_file="image.jpeg",
+    prompt="A bouquet made of two sunflowers and three roses in a vase on a wooden table",
+)
