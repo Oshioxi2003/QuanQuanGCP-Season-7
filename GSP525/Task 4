@@ -1,0 +1,45 @@
+from google.genai.types import GenerateContentConfig, GoogleSearch, Tool
+from IPython.display import Markdown, display
+import json
+
+# 1. Define the basketball sneaker models
+sneaker_models = ["Under Armour Curry Flow 9", "Sketchers Slip-ins: Glide-Step Pro"]
+
+# 2. Define the online retailers
+retailers = ["Foot Locker", "Nordstrom"]
+
+# 3. Initialize an empty list to store the extracted data
+extracted_data = []
+
+# 4. Loop through the sneaker models and retailers to extract pricing information
+for model in sneaker_models:
+    for retailer in retailers:
+        # 5. Construct the search query
+        #TODO: Define the prompt to search stores for sneaker models and find pricing. Leave the second sentence in the prompt. (If the price found is 0.00 return a random value between $50 and $200. DO NOT return 0.00)
+        query = f"Find the current price of the {model} at {retailer}. If the price found is 0.00 return a random value between $50 and $200. DO NOT return 0.00" 
+        
+
+        # 6. Use Response Schema to extract the data
+        response = client.models.generate_content(
+            model=MODEL_ID,
+            contents=query,
+            config=GenerateContentConfig(
+                response_schema = {
+                    "type": "object",
+                    "properties": {
+                        "product_name": {
+                            "type": "string",
+                            "description": "The name of the sneaker model."
+                        },
+                        "price": {
+                            "type": "number",
+                            "description": "The price of the sneaker."
+                        }
+                    },
+                    "required": ["product_name", "price"]
+                },
+                response_mime_type="application/json"
+            )
+        )
+        
+        print(response.text)

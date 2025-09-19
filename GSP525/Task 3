@@ -1,0 +1,20 @@
+from google.genai.types import GenerateContentConfig, GoogleSearch, Tool
+
+# 1. Define the Google Search tool
+google_search_tool = Tool(google_search=GoogleSearch()) # TODO: Define the Google Search tool
+
+# 2. Define the prompt with grounding
+prompt = "Use Google Search to find recent information about the Nike Air Jordan XXXVI. Include details about its release date, price, and key features."
+
+# 3. Generate a response with grounding
+response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=prompt,
+    config = GenerateContentConfig(
+    tools=[google_search_tool],
+    temperature=0,
+    )  # TODO: Define the config,
+)
+
+# Print the response
+print(response.text)
