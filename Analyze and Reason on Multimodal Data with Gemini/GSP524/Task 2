@@ -1,0 +1,77 @@
+### Load and preview the text data
+# 1. Load the text data (reviews.txt)
+with open('media/text/reviews.txt', 'r') as f:
+    text_data = f.read()
+
+
+
+# 2. Construct the prompt for Gemini
+# TODO: Write a prompt that instructs the Gemini model to analyze the customer reviews and social media posts.
+# The prompt should include clear instructions to:
+# - Identify the overall sentiment (positive, negative, or neutral) of each review or post.
+# - Extract key themes and topics discussed, such as product quality, fit, style, customer service, and pricing.
+# - Identify any frequently mentioned product names or specific features.
+prompt = f"""
+You are an AI assistant helping to analyze customer feedback about Cymbal Direct's new athletic apparel. 
+Carefully analyze the following customer reviews and social media posts. For each review/post:
+- Identify the overall sentiment (positive, negative, or neutral).
+- Extract key themes and topics mentioned (e.g., product quality, fit, style, customer service, pricing).
+- Identify any frequently mentioned product names or specific features.
+
+Here is the feedback text:
+{text_data}
+"""
+
+# 3. Send the prompt to Gemini
+# TODO: Use the `client.models.generate_content` method to send the prompt and text data to the Gemini model.
+# TODO: Make sure to specify the `MODEL_ID` and the `prompt` as parameters.
+# TODO: Store the response from the model in a variable named `response`.
+response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=prompt
+)
+
+# 4. Display the response
+display(Markdown(response.text))
+
+
+
+### Deep Dive with Gemini-2.5-flash: Reasoning on Customer Sentiment
+# 1. Construct the prompt for Gemini
+# TODO: Write a prompt that instructs the Gemini model to analyze the customer reviews and social media posts in more detail.
+# The prompt should include clear instructions to:
+# - Identify the main factors driving positive and negative sentiment.
+# - Assess the overall impact of the new athletic apparel line on brand perception.
+# - Identify three key areas where Cymbal Direct can improve customer satisfaction or product offerings.
+# - Imagine you are presenting your findings to the Cymbal Direct marketing team and highlight the three most important takeaways.
+thinking_mode_prompt = f"""
+You are an expert analyst helping Cymbal Direct evaluate customer feedback on their new athletic apparel line. 
+Analyze the following customer reviews and social media posts in detail. Specifically:
+- Identify the main factors driving both positive and negative sentiment.
+- Assess the overall impact of the new athletic apparel line on Cymbal Direct’s brand perception.
+- Identify three key areas where Cymbal Direct can improve customer satisfaction or product offerings.
+- Imagine you are presenting your findings directly to the Cymbal Direct marketing team. Summarize the three most important takeaways that the team should act on.
+
+Here is the feedback text:
+{text_data}
+"""
+
+# 2. Send the prompt to the Gemini Thinking model
+# TODO: Use the `client.models.generate_content` method to send the prompt and text data to the Gemini model.
+# TODO: Make sure to specify the `MODEL_ID` and the `thinking_mode_prompt` as parameters.
+# TODO: Also, pass the `config` object to enable thinking mode.
+# TODO: Store the response from the model in a variable named `thinking_model_response`.
+thinking_model_response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=thinking_mode_prompt,
+    config=config
+)
+
+# 3. Print thoughts and answer
+print_thoughts(thinking_model_response)
+
+# 4. Save the text analysis to a file
+with open('analysis/text_analysis.md', 'w') as f:
+    f.write(thinking_model_response.text)
+
+

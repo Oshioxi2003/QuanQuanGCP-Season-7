@@ -1,0 +1,77 @@
+### Initial Analysis with Gemini 2.0 Flash
+# 1. Load the image data
+image_folder = 'media/images'
+image_files = [f for f in os.listdir(image_folder) if os.path.isfile(os.path.join(image_folder, f))]
+
+# 2. Load the images into a list of `Part` objects
+image_parts = []
+for image_file in image_files:
+    image_path = os.path.join(image_folder, image_file)
+    with open(image_path, 'rb') as f:
+        image_bytes = f.read()
+    image_parts.append(Part.from_bytes(data=image_bytes, mime_type='image/jpeg'))  # Adjust mime_type if needed
+
+# 3. Construct the prompt for Gemini
+# TODO: Write a prompt that instructs the Gemini model to analyze the images of Cymbal Direct's new athletic apparel line.
+# The prompt should include clear instructions to:
+# - Identify the apparel items in each image.
+# - Describe the attributes of each item.
+# - Identify any prominent style trends or preferences.
+prompt = f"""
+You are an AI assistant analyzing visual content for Cymbal Direct's new athletic apparel line. 
+Carefully analyze the following images and provide insights:
+- Identify the apparel items shown in each image (e.g., shirts, leggings, shoes, accessories).
+- Describe the attributes of each item (e.g., color, design, material, fit, style).
+- Identify any prominent style trends, patterns, or customer preferences that emerge across the images.
+
+Present the findings clearly so they can be included in a market research report.
+"""
+
+# 4. Send the prompt and images to Gemini
+# TODO: Use the `client.models.generate_content` method to send the prompt and images to the Gemini model.
+# TODO: Make sure to specify the `MODEL_ID` and the `contents` (including the prompt and image parts) as parameters.
+# TODO: Store the response from the model in a variable named `response`.
+response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=[prompt] + image_parts
+)
+
+# 5. Display the response
+display(Markdown(response.text))
+
+
+### Reasoning on image trends with Gemini-2.5-flash
+# 1. Construct the prompt for Gemini
+# TODO: Write a prompt that instructs the Gemini model to analyze the images in more detail.
+# The prompt should include clear instructions to:
+# - Develop a hypothesis about the target audience for each image.
+# - Analyze how visual elements contribute to the overall message and appeal.
+# - Compare the observed style trends with broader fashion trends in athletic wear.
+# - Provide recommendations for Cymbal Direct's future marketing campaigns or product development.
+thinking_mode_prompt = f"""
+You are an expert visual analyst evaluating Cymbal Direct's new athletic apparel line. 
+Carefully analyze the following images and provide a deeper level of insight:
+- Develop a hypothesis about the target audience for each image (consider age, gender, lifestyle, fitness level).
+- Analyze how visual elements (e.g., colors, poses, backgrounds, models) contribute to the overall message and appeal.
+- Compare the style trends observed in these images with broader fashion trends in the athletic wear industry.
+- Provide actionable recommendations for Cymbal Direct's future marketing campaigns or product development, highlighting opportunities to better connect with their audience.
+
+Here are the images to analyze:
+"""
+
+# 2. Send the prompt and images to the Gemini Thinking model
+# TODO: Use the `client.models.generate_content` method to send the thinking_mode_prompt and images to the Gemini model.
+# TODO: Make sure to specify the `MODEL_ID`, `contents` (including the prompt and image parts), and `config` to enable thinking mode.
+# TODO: Store the response from the model in a variable named `thinking_model_response`.
+thinking_model_response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=[thinking_mode_prompt] + image_parts,
+    config=config
+)
+
+# 3. Print thoughts and answer
+print_thoughts(thinking_model_response)
+
+# 4. Save the image analysis to a file
+with open('analysis/image_analysis.md', 'w') as f:
+    f.write(thinking_model_response.text)

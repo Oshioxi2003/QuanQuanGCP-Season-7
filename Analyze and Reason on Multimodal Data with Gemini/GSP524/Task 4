@@ -1,0 +1,79 @@
+### Initial analysis with Gemini 2.0 Flash
+# 1. Construct the prompt for Gemini
+# TODO: Write a prompt that instructs the Gemini model to analyze the images in more detail.
+# The prompt should include clear instructions to:
+# - Develop a hypothesis about the target audience for each image.
+# - Analyze how visual elements contribute to the overall message and appeal.
+# - Compare the observed style trends with broader fashion trends in athletic wear.
+# - Provide recommendations for Cymbal Direct's future marketing campaigns or product development.
+thinking_mode_prompt = f"""
+You are an expert visual analyst evaluating Cymbal Direct's new athletic apparel line. 
+Carefully analyze the following images and provide a deeper level of insight:
+- Develop a hypothesis about the target audience for each image (consider age, gender, lifestyle, fitness level).
+- Analyze how visual elements (e.g., colors, poses, backgrounds, models) contribute to the overall message and appeal.
+- Compare the style trends observed in these images with broader fashion trends in the athletic wear industry.
+- Provide actionable recommendations for Cymbal Direct's future marketing campaigns or product development, highlighting opportunities to better connect with their audience.
+
+Here are the images to analyze:
+"""
+
+# 2. Send the prompt and images to the Gemini Thinking model
+# TODO: Use the `client.models.generate_content` method to send the thinking_mode_prompt and images to the Gemini model.
+# TODO: Make sure to specify the `MODEL_ID`, `contents` (including the prompt and image parts), and `config` to enable thinking mode.
+# TODO: Store the response from the model in a variable named `thinking_model_response`.
+thinking_model_response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=[thinking_mode_prompt] + image_parts,
+    config=config
+)
+
+# 3. Print thoughts and answer
+print_thoughts(thinking_model_response)
+
+# 4. Save the image analysis to a file
+with open('analysis/image_analysis.md', 'w') as f:
+    f.write(thinking_model_response.text)
+
+
+
+### Reasoning on Audio Insights with Gemini-2.5-flash
+# 1. Construct the prompt for Gemini
+# TODO: Write a prompt that instructs the Gemini model to analyze the audio recording in more detail.
+# The prompt should include clear instructions to:
+# - Reason about the overall customer satisfaction with the apparel.
+# - Deduce the key factors influencing customer perception.
+# - Develop three data-driven recommendations for Cymbal Direct.
+# - Identify any potential biases or limitations in the audio data.
+prompt = """
+You are an expert analyst evaluating a podcast interview about Cymbal Direct’s new athletic apparel line.
+Analyze the audio in depth and provide a concise, decision-ready report.
+
+Deliverables (use Markdown with the following sections):
+1) **Executive Summary** — 4–6 bullets on the biggest insights.
+2) **Overall Customer Satisfaction** — reasoned judgment (e.g., positive / mixed / negative) with 2–3 evidence points from the conversation.
+3) **Key Factors Influencing Perception** — analyze and rate influence (High/Medium/Low) for: comfort, fit/sizing, performance (moisture-wicking, breathability), durability/material quality, style/design, price/value, inclusivity/sizing range, sustainability, customer service, and competitor comparisons.
+4) **Recommendations (3)** — each with:
+   - *Action*: specific step for product or marketing.
+   - *Rationale*: tie to statements or sentiments from the interview.
+   - *Expected Impact/KPIs*: e.g., CSAT, NPS, conversion rate, return rate.
+5) **Biases & Limitations** — identify potential biases (e.g., brand representative viewpoint, selection bias, lack of quantitative data, audio quality) and how they could skew conclusions.
+
+Be explicit, evidence-driven, and avoid speculation beyond what the audio supports.
+"""
+
+# 2. Send the prompt and audio to the Gemini Thinking model
+# TODO: Use the `client.models.generate_content` method to send the prompt and audio data to the Gemini model.
+# TODO: Make sure to specify the `MODEL_ID`, `contents` (including the `audio_part` and the `prompt`), and `config` to enable thinking mode.
+# TODO: Store the response from the model in a variable named `thinking_model_response`.
+thinking_model_response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=[prompt, audio_part],
+    config=config
+)
+
+# 3. Print the thoughts and answer
+print_thoughts(thinking_model_response)
+
+# 4. Save the audio analysis to a text file in the analysis folder
+with open('analysis/audio_analysis.md', 'w') as f:
+    f.write(thinking_model_response.text)
