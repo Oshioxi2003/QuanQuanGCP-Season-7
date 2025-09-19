@@ -1,0 +1,20 @@
+from google.genai.types import GenerateContentConfig, Tool, ToolCodeExecution
+
+# 1. Define the code execution tool
+code_execution_tool = Tool(code_execution=ToolCodeExecution())
+
+sneaker_prices = [120, 150, 110, 180, 135, 95, 210, 170, 140, 165]
+
+# 2. Define the prompt with the code to be executed
+PROMPT = f"""Calculate the average price of the sneakers in the `sneaker_prices` list. {sneaker_prices}
+Generate and run code for the calculation."""
+
+# Assuming 'client' and 'MODEL_ID' are already defined
+response = client.models.generate_content(
+    model=MODEL_ID,
+    contents=PROMPT,
+    config=GenerateContentConfig(
+        tools=[code_execution_tool],
+        temperature=0,
+    ),
+)
